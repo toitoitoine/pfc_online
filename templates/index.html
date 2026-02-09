@@ -22,6 +22,12 @@
         <h2 id="mon_elo">ELO: 1200</h2>
     </div>
 
+    <div id="status">Lancer un duel ?</div>
+    <div id="loading" style="display:none;">
+        <p>Recherche d'un adversaire...</p>
+        <div class="loader"></div>
+    </div>
+
 
     <div class="game-area">
         <button class="btn" onclick="jouer('Pierre')">
@@ -42,8 +48,22 @@
             socket.emit('jouer_coup', {nom: nom, signe: signe});
         }
         socket.on('resultat', (data) => {
-            document.getElementById('status').innerText = data.message;
-            if(data.nouvel_elo) document.getElementById('mon_elo').innerText = "ELO: " + data.nouvel_elo;
+            const statusDiv = document.getElementById('status');
+            const loadingDiv = document.getElementById('loading');
+
+            if (data.message === "En attente d'un adversaire...") {
+                statusDiv.style.display = "none";
+                loadingDiv.style.display = "block";
+            } else {
+                // Le match est fini ou a commencé
+                statusDiv.style.display = "block";
+                loadingDiv.style.display = "none";
+                statusDiv.innerText = data.message;
+                
+                if(data.nouvel_elo) {
+                    document.getElementById('mon_elo').innerText = "ELO: " + data.nouvel_elo;
+                }
+            }
         });
     </script>
 </body>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PFC Online</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        const buttons = document.querySelectorAll('.btn');
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                buttons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+    });
+  });
+    </script>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div id="header">
+        <h1>PFC MULTIJOUEUR</h1>
+        <input type="text" id="username" placeholder="Pseudo" value="Joueur1">
+        <h2 id="mon_elo">ELO: 1200</h2>
+    </div>
+
+
+    <div class="game-area">
+        <button class="btn" onclick="jouer('Pierre')">
+            <img src="{{ url_for('static', filename='img_pierre.jpg') }}" alt="Pierre" width="80%">
+        </button>
+        <button class="btn" onclick="jouer('Feuille')">
+            <img src="{{ url_for('static', filename='img_papier.jpg') }}" alt="Feuille" width="80%">
+        </button>
+        <button class="btn" onclick="jouer('Ciseaux')">
+            <img src="{{ url_for('static', filename='img_ciseaux.jpg') }}" alt="Ciseaux" width="80%">
+        </button>
+    </div>
+
+    <script>
+        const socket = io();
+        function jouer(signe) {
+            const nom = document.getElementById('username').value;
+            socket.emit('jouer_coup', {nom: nom, signe: signe});
+        }
+        socket.on('resultat', (data) => {
+            document.getElementById('status').innerText = data.message;
+            if(data.nouvel_elo) document.getElementById('mon_elo').innerText = "ELO: " + data.nouvel_elo;
+        });
+    </script>
+</body>
+</html>
